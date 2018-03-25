@@ -5,23 +5,24 @@ static const int mqttPort = 15873;
 static const char* mqttUser = "lytlmnde";
 static const char* mqttPassword = "3mtD81MmaVqW";
 
-extern WiFiClient espClient;
-PubSubClient mqttClient(espClient);
+MqttController::MqttController(PubSubClient *mqtt_client){
+  _mqtt_client = mqtt_client;
+}
 
-void mqttConnect() {
+void MqttController::mqttConnect() {
   unsigned char count = 0;
   Serial.println("mqttConnect");
   Serial.println(mqttServer);
-  mqttClient.setServer(mqttServer, mqttPort);
-  while (!mqttClient.connected()) {
+  _mqtt_client->setServer(mqttServer, mqttPort);
+  while (!_mqtt_client->connected()) {
     Serial.println("Connecting to MQTT...");
-    if (mqttClient.connect("ESP32Client", mqttUser, mqttPassword)) {
+    if (_mqtt_client->connect("ESP32Client", mqttUser, mqttPassword)) {
       Serial.println("mqtt connected");
-      mqttClient.subscribe("admin");
-      mqttClient.subscribe("servoAin");
+      _mqtt_client->subscribe("admin");
+      _mqtt_client->subscribe("servoAin");
     } else {
       Serial.print("failed with state ");
-      Serial.print(mqttClient.state());
+      Serial.print(_mqtt_client->state());
       count++;
       if(count==5){
         ESP.restart();
@@ -29,26 +30,26 @@ void mqttConnect() {
       delay(2000);
     }
   }
-  mqttClient.setCallback(callback);
+  _mqtt_client->setCallback(callback);
   Serial.println("mqttConnect Success");
 }
 
-void mqttReconnect() {
-  if(!checkWifiConnect()){
-    wifiConnect();  
+void MqttController::mqttReconnect() {
+  if(!WifiController::checkWifiConnect()){
+    WifiController::wifiConnect();  
   }
-  while (!mqttClient.connected()) {
+  while (!_mqtt_client->connected()) {
     Serial.print("Attempting MQTT connection...");
     mqttConnect();
   }
 }
 
-int mqttIsConnected(){
-  return(mqttClient.connected());
+int MqttController::mqttIsConnected(){
+  return(_mqtt_client->connected());
 }
 
-void mqttPublish(char* JSONmessageBuffer){
-    if (mqttClient.publish("esp/test", JSONmessageBuffer) == true) {
+void MqttController::mqttPublish(char* JSONmessageBuffer){
+    if (_mqtt_client->publish("esp/test", JSONmessageBuffer) == true) {
       Serial.println("Success sending message");
     } else {
       Serial.println("Error sending message");
@@ -56,9 +57,10 @@ void mqttPublish(char* JSONmessageBuffer){
     }
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
+void MqttController::callback(char* topic, byte* payload, unsigned int length) {
+  WiFiClient espClient;
+  PubSubClient mqttClient(espClient);
   StaticJsonBuffer<50> JSONbuffer;
-
   JsonObject& JSONencoder = JSONbuffer.createObject();
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -78,39 +80,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println(EEPROM.read(0));
     char JSONmessageBuffer[50];
     JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+
     mqttClient.publish("esp/led", JSONmessageBuffer);
     Serial.println(JSONmessageBuffer);
     digitalWrite(LED_PIN2, -(EEPROM.read(0)) + 1);
   } 
-  else if (topic_s.equals("servoAin")) {
-    unsigned int values = 0;
-    Serial.println(length);
-
-    for (int i = 0; i < length; i++) {
-      Serial.print((char)payload[i]);
-      values = values + ((int)payload[i] - 48) * pow(10, (length - i - 1));
-      //values = values.concat((String)payload[i]);
-      //values = values+((int)payload[i]-48)*10^i;
-    }
-    EEPROM.write(1, values);
-    Serial.println();
-    EEPROM.commit();
-    for (int i = 0; i < EEPROM_SIZE; i++) {
-      Serial.print(byte(EEPROM.read(i))); Serial.print(" ");
-    }
-    JSONencoder["servoA"] = EEPROM.read(1);
-    Serial.println(EEPROM.read(1));
-    char JSONmessageBuffer[50];
-    JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-    mqttClient.publish("esp/servoAout", JSONmessageBuffer);
-    Serial.println(JSONmessageBuffer);
-    servoHandle(EEPROM.read(1));
-  }
   Serial.println(); Serial.println("----------------------------------");
 }
 
-void mqttLoop(){
-  mqttClient.loop();
+void MqttController::mqttLoop(){
+  _mqtt_client->loop();
 }
   
 

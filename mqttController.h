@@ -3,10 +3,20 @@
 
 #include "asoym.h"
 
-void mqttConnect();
-int mqttIsConnected();
-void mqttPublish(char* JSONmessageBuffer);
-void callback(char* topic, byte* payload, unsigned int length);
-void mqttLoop();
+class MqttController
+{
+  public:
+    MqttController(PubSubClient *mqttClient);
+    void mqttConnect();
+    int mqttIsConnected();
+    void mqttPublish(char* JSONmessageBuffer);
+    void mqttLoop();
+    void mqttReconnect();
+    static void callback(char* topic, byte* payload, unsigned int length);
+    
+  private:
+    PubSubClient *_mqtt_client;
+    
+};
 
 #endif

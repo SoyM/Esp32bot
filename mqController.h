@@ -3,8 +3,15 @@
 
 #include "asoym.h"
 
-void mqInit();
-int readMQ();
+#define MQ_PIN              35
+#define MQC_CHANNEL_7       7
+
+class MqController
+{
+  public:
+    void mqInit();
+    int readMQ();
+};
 
 #endif
 

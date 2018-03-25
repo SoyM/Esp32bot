@@ -1,15 +1,17 @@
 #include "dhtController.h"
 
-DHT dht(DHTPIN, DHTTYPE);
+DhtController::DhtController(DHT *dht){
+  _dht = dht;
+}
 
-void dhtInit(){
-  dht.begin();  
+void DhtController::dhtInit(){
+  _dht->begin();  
   Serial.println("dhtInit success");
 }
 
-char readDHT(float *humidity,float *temperature,float *heatindex){
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
+char DhtController::readDHT(float *humidity,float *temperature,float *heatindex){
+  float h = _dht->readHumidity();
+  float t = _dht->readTemperature();
   Serial.println(h);
   if (isnan(h) || isnan(t)) {
     Serial.println("Failed to read from DHT sensor!");
@@ -17,10 +19,11 @@ char readDHT(float *humidity,float *temperature,float *heatindex){
   } else {
     *humidity = h;
     *temperature = t;
-    *heatindex = dht.computeHeatIndex(*temperature, *humidity, false);
+    *heatindex = _dht->computeHeatIndex(*temperature, *humidity, false);
     return 1;
   }
 }
+
 
 
 

@@ -1,13 +1,13 @@
 #include "mqController.h"
 
-void mqInit(){
+void MqController::mqInit(){
   if (adcAttachPin(MQ_PIN)) {
     adcStart(MQ_PIN);
     Serial.println("mqInit success");
   }
 }
 
-int readMQ(){
+int MqController::readMQ(){
   return analogRead(MQ_PIN);  
 }
 

@@ -1,13 +1,17 @@
 #include "wifiController.h"
 
-WiFiMulti wifiMulti;
-extern WiFiClient espClient;
+extern WiFiMulti wifiMulti;
 
-int checkWifiConnect(){
+WifiController::WifiController(WiFiMulti *wifiMulti){
+  _wifiMulti = wifiMulti;
+}
+
+
+int WifiController::checkWifiConnect(){
   return (wifiMulti.run() == WL_CONNECTED);
 }
 
-void wifiConnect() {
+void WifiController::wifiConnect() {
   wifiMulti.addAP("ASUS", "00000000");
   wifiMulti.addAP("huang2", "hxz04010.");
   wifiMulti.addAP("honor8", "00000000");
