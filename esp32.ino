@@ -16,6 +16,9 @@ PubSubClient mqttClient(espClient);
 MqttController MqttCon(&mqttClient);
 MqController MqCon;
 
+float humidity,temperature,heatindex;
+char JSONmessageBuffer[300];
+
 void setup() {
   baseInit();
   eepromInit();
@@ -33,7 +36,6 @@ void setup() {
 void loop() {
     Serial.println("mainTask Start");
     //ulTaskNotifyTake( pdTRUE, portMAX_DELAY); 
-    float humidity,temperature,heatindex;
    
     if(DhtCon.readDHT(&humidity,&temperature,&heatindex)){
       publishData["Humidity"] = humidity;
@@ -44,7 +46,7 @@ void loop() {
     publishData["SSID"] = WiFi.SSID();
     publishData["sensorValue"] = MqCon.readMQ();
     
-    char JSONmessageBuffer[300];
+    
     publishData.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
     Serial.println(JSONmessageBuffer);
     MqttCon.mqttPublish(JSONmessageBuffer);
