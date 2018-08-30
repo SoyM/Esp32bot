@@ -1,7 +1,8 @@
 #ifndef _WIFICONTROLLER_H
 #define _WIFICONTROLLER_H
 
-#include "asoym.h"
+#include "Arduino.h"
+#include <WiFiMulti.h>
 
 #define AP_SSID      "esp32-soym"
 

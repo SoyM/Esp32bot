@@ -1,7 +1,7 @@
 #ifndef _LEDCONTROLLER_H
 #define _LEDCONTROLLER_H
 
-#include "asoym.h"
+#include "Arduino.h"
 
 #define LED_PIN                     2
 #define LED_PIN2                    22

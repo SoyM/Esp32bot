@@ -1,7 +1,7 @@
 #ifndef _MQCONTROLLER_H
 #define _MQCONTROLLER_H
 
-#include "asoym.h"
+#include "Arduino.h"
 
 #define MQ_PIN              35
 #define MQC_CHANNEL_7       7

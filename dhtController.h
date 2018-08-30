@@ -1,7 +1,7 @@
 #ifndef _DHTCONTROLLER_H
 #define _DHTCONTROLLER_H
 
-#include "asoym.h"
+#include <DHT.h>
 
 class DhtController{
   public:
