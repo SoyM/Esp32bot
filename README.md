@@ -3,12 +3,13 @@
 
 基于Esp32的温湿度，有害气体监测
 
-## 开发板
+## 开发板介绍
 http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 
 ## Usage
- 1. rename you dirname to "esp32"
- 2. open "esp32.ino" with Arduino.
+1.  Install [Arduino](https://www.arduino.cc/en/Main/Software).
+ 
+2.  Open "esp32.ino" with Arduino.
 
 ## 需要安装的arduino库
 * ArduinoJson at version 5.13.1 
