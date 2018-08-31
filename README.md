@@ -9,7 +9,7 @@ http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 ## Usage
 1.  Install [Arduino](https://www.arduino.cc/en/Main/Software).
  
-2.  Open "esp32.ino" with Arduino.
+2.  Open "Esp32bot.ino" with Arduino.
 
 ## 需要安装的arduino库
 * ArduinoJson at version 5.13.1 
