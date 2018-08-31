@@ -15,14 +15,14 @@ void WifiController::wifiConnect() {
   wifiMulti.addAP("ASUS", "00000000");
   wifiMulti.addAP("huang2", "hxz04010.");
   wifiMulti.addAP("TP-LINK_4A49", "Lanyinkejiccs");
-  Serial.println("wifiConnect Start");
+  Serial.println("WIFI Connecting");
   for (int loops = 0; loops < 5; loops++) {
     if (checkWifiConnect()) {
-      Serial.println("WiFiConnect success");
+//      Serial.println("WiFiConnect success");
       break;
     }
     else {
-      Serial.println(loops);
+      Serial.print(".");
       delay(1000);
     }
   }
@@ -31,12 +31,12 @@ void WifiController::wifiConnect() {
     ESP.restart();
   }
   Serial.println(WiFi.SSID());
-//  Serial.println("IP address: " + WiFi.localIP());/
-  Serial.println("ESP Mac Address: " + WiFi.macAddress());
+//  Serial.println(WiFi.localPort());/
+  //Serial.println("IP address: " + WiFi.localIP());
+  Serial.println("Mac Address: " + WiFi.macAddress());
 //  Serial.println("Subnet Mask: " + WiFi.subnetMask());/
 //  Serial.println("Gateway IP: " + WiFi.gatewayIP());/
 //  Serial.println("DNS: " + WiFi.dnsIP());
-  Serial.println("wifiConnect end");
 }
 
 

@@ -4,11 +4,12 @@
 #include "Arduino.h"
 
 #include "wifiController.h"
-#include "mqttController.h"
-//#include "mqController.h"
+//#include "mqttController.h"/
+#include "mqController.h"
 #include "eepromController.h"
 //#include "dhtController.h"
 #include "ledController.h"
+#include "ntpController.h"
 
 
 /*
@@ -16,10 +17,9 @@
  2     16     22       35     36,39,34
 */
 
-/*
-MqController MqCon;
-MqCon.mqInit();
 
+
+/*
 #define DHTPIN       16
 #define DHTTYPE      DHT11
 DHT dht(DHTPIN, DHTTYPE);

@@ -5,12 +5,12 @@ void eepromInit() {
   {
     Serial.println("failed to initialise EEPROM"); delay(1000000);
   }
-  Serial.println(" bytes read from Flash . Values are:");
+//  Serial.println(" bytes read from Flash . Values are:");/
   for (int i = 0; i < EEPROM_SIZE; i++)
   {
-    Serial.print(byte(EEPROM.read(i))); Serial.print(" ");
+//    Serial.print(byte(EEPROM.read(i))); Serial.print(" ");/
   }
-  Serial.println("eepromInit success");
+//  Serial.println("eepromInit success");/
 }
 
 
