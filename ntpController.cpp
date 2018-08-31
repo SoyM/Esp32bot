@@ -23,7 +23,7 @@ int NtpController::ntpGet(){
   
   sendNTPpacket(timeServer); // send an NTP packet to a time server
   // wait to see if a reply is available
-  delay(2000);
+  delay(500);
   if (Udp.parsePacket()) {
     Serial.println("packet received");
     // We've received a packet, read the data from it

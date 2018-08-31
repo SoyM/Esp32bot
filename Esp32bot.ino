@@ -1,7 +1,7 @@
 #include "asoym.h"
 #include <ros.h>
 #include <std_msgs/Empty.h>
-#include <std_msgs/String.h>
+#include <std_msgs/Int16.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
@@ -17,12 +17,12 @@ StaticJsonBuffer<300> JSONbuffer;
 JsonObject& publishData = JSONbuffer.createObject();
 char JSONmessageBuffer[300];
 
-TaskHandle_t mainTaskHandle,realTaskHandle;
+TaskHandle_t baseTaskHandle,realTaskHandle;
 
 ros::NodeHandle  nh;
 IPAddress rosServer(192, 168, 1, 106);
 uint16_t rosServerPort = 11411;
-std_msgs::String str_msg;
+std_msgs::Int16 str_msg;
 ros::Publisher chatter("chatter", &str_msg);
 char hello[13] = "hello world!";
 
@@ -41,8 +41,7 @@ void setup() {
 //  MqttCon.mqttConnect();/
   
   boardLedInit();
-  xTaskCreate(realTask, "realTask", 5000, NULL, 1, &realTaskHandle);
-//  xTaskCreate(mainTask, "mainTask", 5000, NULL, 0, &mainTaskHandle);
+
 //  xTaskCreate(servoTask, "servoTask", 10000, NULL, 1, &servoTaskHandle);
 //  vTaskStartScheduler(); 
   pinMode(13, OUTPUT);
@@ -61,20 +60,17 @@ void setup() {
   
   MqCon.mqInit();
   NtpCon.ntpInit();
+
+  xTaskCreate(realTask, "realTask", 5000, NULL, 1, &realTaskHandle);
+  xTaskCreate(baseTask, "baseTask", 5000, NULL, 1, &baseTaskHandle);
 }
 
 void loop() {
     long rssi = WiFi.RSSI();
-    Serial.printf("RSSI: %ddBm | ExecCore: %d\n",rssi,xPortGetCoreID());
+    Serial.printf("RSSI: %ddBm | ExecCore: %d\n", rssi, xPortGetCoreID());
     //ulTaskNotifyTake( pdTRUE, portMAX_DELAY); 
    
-   if (nh.connected())
-    {
-      str_msg.data = hello;
-      char result = chatter.publish( &str_msg );
-      Serial.printf("rosmsg publish length: %d\n",result);
-    }
-    nh.spinOnce();
+
 //    delay(2000);/
 
     HTTPClient http;
@@ -100,7 +96,7 @@ void loop() {
     }
     http.end();
         
-    Serial.printf("mq:%d\n",MqCon.readMQ());
+//    Serial.printf("mq:%d\n",MqCon.readMQ());
     NtpCon.ntpGet();
 
     Serial.println("--------------------------");
@@ -109,14 +105,34 @@ void loop() {
 void realTask(void* parameter) {
   while (1) {
 //    MqttCon.mqttLoop();/
-    ledFlash();
-
+    
+    if (nh.connected())
+    {
+      str_msg.data = MqCon.readMQ();
+      
+      char result = chatter.publish( &str_msg );
+      if(result>0){
+        Serial.print(xPortGetCoreID());
+      }
+      //Serial.printf("rosmsg publish length: %d\n",result);
+    }
+    nh.spinOnce();
+    
+    delay(100);
 //  xTaskNotifyGive( mainTaskHandle ); 
 //    vTaskDelete(NULL);   
   }
 }
 
 
-
+void baseTask(void* parameter) {
+  while(1){
+    if(!WifiController::checkWifiConnect()){
+        WifiController::wifiConnect();  
+    }else{
+      ledFlash();
+    }
+  }
+}
 
 
