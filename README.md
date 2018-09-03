@@ -24,7 +24,8 @@ roscore && roslaunch rosserial_server socket.launch
 * Adafruit_Unified_Sensor at version 1.0.2 
 * WiFiClientSecure at version 1.0
 
-
+## Resouce
+![nodemcu_32s_pin.png](http://wiki.ai-thinker.com/_media/esp32/boards/nodemcu/nodemcu_32s_pin.png)
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot?ref=badge_large)
