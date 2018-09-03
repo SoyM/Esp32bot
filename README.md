@@ -7,13 +7,20 @@
 http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 
 ## Usage
-1.  Install [Arduino](https://www.arduino.cc/en/Main/Software).
- 
-2.  Open "Esp32bot.ino" with Arduino.
+
+* Install the current upstream [Arduino](https://www.arduino.cc/en/Main/Software) IDE at the 1.8 level or later. 
+
+* Start Arduino and open Preferences window.
+
+* Enter https://dl.espressif.com/dl/package_esp32_index.json into Additional Board Manager URLs field. You can add multiple URLs, separating them with commas.
+
+* Open Boards Manager from Tools > Board menu and install esp32 platform (and don't forget to select your ESP32 board from Tools > Board menu after installation).
+
+* Open "Esp32bot.ino" with Arduino.
 
 ## Ros
 
-roscore && roslaunch rosserial_server socket.launch
+`roscore && roslaunch rosserial_server socket.launch`
 
 ## 需要安装的arduino库
 * ArduinoJson at version 5.13.1 
