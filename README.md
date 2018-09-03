@@ -1,7 +1,7 @@
 # Esp32bot
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot?ref=badge_shield)
 
-基于Esp32的温湿度，有害气体监测
+NodeMcu-32s & ROS.
 
 ## Development board
 http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
@@ -16,12 +16,11 @@ http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 * Open "Esp32bot.ino" with Arduino.
 
 ## Ros
+### Install Ros dependence
 `sudo apt-get install ros-indigo-rosserial-arduino && sudo apt-get install ros-indigo-rosserial &&`
-
-cd <sketchbook>/libraries
-  
+`cd <sketchbook>/libraries`
 `rosrun rosserial_arduino make_libraries.py .`
-
+### Command
 `roscore && roslaunch rosserial_server socket.launch`
 
 ## Dependent libraries
