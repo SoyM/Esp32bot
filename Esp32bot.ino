@@ -4,8 +4,13 @@
 #include <std_msgs/Int16.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include "time.h"
 
 #define ESP32
+
+const char* ntpServer = "cn.pool.ntp.org";
+const long  gmtOffset_sec = 28800;
+const int   daylightOffset_sec = 0;
 
 WiFiMulti wifiMulti;
 WifiController WifiCon(&wifiMulti);
@@ -27,7 +32,8 @@ ros::Publisher chatter("chatter", &str_msg);
 char hello[13] = "hello world!";
 
 MqController MqCon;
-NtpController NtpCon;
+//NtpController NtpCon;
+
 
 void messageCb( const std_msgs::Empty& toggle_msg){
   digitalWrite(13, HIGH-digitalRead(13));   // blink the led
@@ -39,12 +45,8 @@ void setup() {
   eepromInit();
   WifiCon.wifiConnect();
 //  MqttCon.mqttConnect();/
-  
   boardLedInit();
 
-//  xTaskCreate(servoTask, "servoTask", 10000, NULL, 1, &servoTaskHandle);
-//  vTaskStartScheduler(); 
-  pinMode(13, OUTPUT);
   nh.getHardware()->setConnection(rosServer, rosServerPort);
 
   nh.initNode();
@@ -59,52 +61,50 @@ void setup() {
 
   
   MqCon.mqInit();
-  NtpCon.ntpInit();
+//  NtpCon.ntpInit();
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
   xTaskCreate(realTask, "realTask", 5000, NULL, 1, &realTaskHandle);
   xTaskCreate(baseTask, "baseTask", 5000, NULL, 1, &baseTaskHandle);
+//  vTaskStartScheduler(); 
 }
 
 void loop() {
     long rssi = WiFi.RSSI();
     Serial.printf("RSSI: %ddBm | ExecCore: %d\n", rssi, xPortGetCoreID());
     //ulTaskNotifyTake( pdTRUE, portMAX_DELAY); 
-   
-
-//    delay(2000);/
-
+/*
     HTTPClient http;
-    // configure traged server and url
-    //http.begin("https://www.howsmyssl.com/a/check", ca); //HTTPS
     http.begin("http://192.168.1.106/path.html"); //HTTP
-
-    // start connection and send HTTP header
     int httpCode = http.GET();
-
-    // httpCode will be negative on error
-   if(httpCode > 0) {
-        // HTTP header has been send and Server response header has been handled
+    if(httpCode > 0) {
         Serial.printf("HTTP GET code: %d\n", httpCode);
-
-        // file found at server
         if(httpCode == HTTP_CODE_OK) {
-//                String payload = http.getString();/
+//                String payload = http.getString();
 //               Serial.println(payload);
         }
     } else {
         Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
     }
     http.end();
-        
+*/
 //    Serial.printf("mq:%d\n",MqCon.readMQ());
-    NtpCon.ntpGet();
+//    NtpCon.ntpGet();
+
+    struct tm timeinfo;
+    if(!getLocalTime(&timeinfo)){
+      Serial.println("Failed to obtain time");
+      return;
+    }
+    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 
     Serial.println("--------------------------");
+    delay(1000);
 }
 
 void realTask(void* parameter) {
   while (1) {
-//    MqttCon.mqttLoop();/
+//    MqttCon.mqttLoop();
     
     if (nh.connected())
     {
@@ -134,5 +134,3 @@ void baseTask(void* parameter) {
     }
   }
 }
-
-

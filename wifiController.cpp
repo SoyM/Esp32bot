@@ -31,12 +31,9 @@ void WifiController::wifiConnect() {
     ESP.restart();
   }
   Serial.println(WiFi.SSID());
-//  Serial.println(WiFi.localPort());/
-  //Serial.println("IP address: " + WiFi.localIP());
+  Serial.println("IP address: " + WiFi.localIP().toString());
   Serial.println("Mac Address: " + WiFi.macAddress());
-//  Serial.println("Subnet Mask: " + WiFi.subnetMask());/
-//  Serial.println("Gateway IP: " + WiFi.gatewayIP());/
-//  Serial.println("DNS: " + WiFi.dnsIP());
+  Serial.println("Subnet Mask: " + WiFi.subnetMask().toString());
+  Serial.println("Gateway IP: " + WiFi.gatewayIP().toString());
+  Serial.println("DNS: " + WiFi.dnsIP().toString());
 }
-
-
