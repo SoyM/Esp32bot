@@ -11,6 +11,10 @@ http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
  
 2.  Open "Esp32bot.ino" with Arduino.
 
+## Ros
+
+roscore && roslaunch rosserial_server socket.launch
+
 ## 需要安装的arduino库
 * ArduinoJson at version 5.13.1 
 * DHT_sensor_library at version 1.3.0
