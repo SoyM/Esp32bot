@@ -2,6 +2,7 @@
 #include <ros.h>
 #include <std_msgs/Empty.h>
 #include <std_msgs/Int16.h>
+#include <std_msgs/UInt8.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include "time.h"
@@ -11,6 +12,7 @@
 const char* ntpServer = "cn.pool.ntp.org";
 const long  gmtOffset_sec = 28800;
 const int   daylightOffset_sec = 0;
+const int buttonPin = 0;
 
 WiFiMulti wifiMulti;
 WifiController WifiCon(&wifiMulti);
@@ -27,9 +29,10 @@ TaskHandle_t baseTaskHandle,realTaskHandle;
 ros::NodeHandle  nh;
 IPAddress rosServer(192, 168, 1, 106);
 uint16_t rosServerPort = 11411;
-std_msgs::Int16 str_msg;
-ros::Publisher chatter("chatter", &str_msg);
+std_msgs::UInt8 str_msg;
+ros::Publisher light_status("light_status", &str_msg);
 char hello[13] = "hello world!";
+uint32_t message_count = 0;
 
 MqController MqCon;
 //NtpController NtpCon;
@@ -46,6 +49,7 @@ void setup() {
   WifiCon.wifiConnect();
 //  MqttCon.mqttConnect();/
   boardLedInit();
+  pinMode(buttonPin, INPUT);
 
   nh.getHardware()->setConnection(rosServer, rosServerPort);
 
@@ -57,7 +61,7 @@ void setup() {
   Serial.println(nh.getHardware()->getLocalIP());
 
   // Start to be polite
-  nh.advertise(chatter);
+  nh.advertise(light_status);
 
   
   MqCon.mqInit();
@@ -70,8 +74,15 @@ void setup() {
 }
 
 void loop() {
+    int buttonState = digitalRead(buttonPin);
+    if (buttonState == HIGH) {
+      Serial.printf("high");
+    }else{
+      Serial.printf("low");
+    }
     long rssi = WiFi.RSSI();
-    Serial.printf("RSSI: %ddBm | ExecCore: %d\n", rssi, xPortGetCoreID());
+    Serial.printf("RSSI: %ddBm | ExecCore: %d | message_count: %d\n", rssi, xPortGetCoreID(), message_count);
+    message_count = 0;
     //ulTaskNotifyTake( pdTRUE, portMAX_DELAY); 
 /*
     HTTPClient http;
@@ -91,34 +102,53 @@ void loop() {
 //    Serial.printf("mq:%d\n",MqCon.readMQ());
 //    NtpCon.ntpGet();
 
-    struct tm timeinfo;
-    if(!getLocalTime(&timeinfo)){
-      Serial.println("Failed to obtain time");
-      return;
-    }
-    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+//    struct tm timeinfo;
+//    if(!getLocalTime(&timeinfo)){
+//      Serial.println("Failed to obtain time");
+//      return;
+//    }
+//    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 
     Serial.println("--------------------------");
     delay(1000);
 }
 
 void realTask(void* parameter) {
+  bool check_sum = true;
   while (1) {
 //    MqttCon.mqttLoop();
     
     if (nh.connected())
     {
-      str_msg.data = MqCon.readMQ();
-      
-      char result = chatter.publish( &str_msg );
-      if(result>0){
-        Serial.print(xPortGetCoreID());
+//      if(MqCon.readMQ()>4050){
+        if(digitalRead(buttonPin)==LOW){
+        
+        if(check_sum==true){
+          str_msg.data = 0xFF;
+        }else{
+          str_msg.data = 0x0F;
+        }
+      }else{
+        
+        if(check_sum==true){
+          str_msg.data = 0xF0;
+        }else{
+          str_msg.data = 0x00;
+        }
       }
-      //Serial.printf("rosmsg publish length: %d\n",result);
+
+      check_sum = check_sum==true?false:true;
+      
+      char result = light_status.publish( &str_msg );
+      if(result>0){
+        //Serial.print(xPortGetCoreID());
+        message_count++;
+      }
+//      Serial.printf("rosmsg publish length: %d\n",result);
     }
     nh.spinOnce();
     
-    delay(100);
+    delay(49);
 //  xTaskNotifyGive( mainTaskHandle ); 
 //    vTaskDelete(NULL);   
   }
@@ -132,5 +162,6 @@ void baseTask(void* parameter) {
     }else{
       ledFlash();
     }
+    delay(20);
   }
 }
