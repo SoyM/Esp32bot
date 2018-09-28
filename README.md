@@ -33,7 +33,12 @@ http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 * WiFiClientSecure at version 1.0
 
 ## Resouce
+
+nodemcu_32s_pin
 ![nodemcu_32s_pin.png](http://wiki.ai-thinker.com/_media/esp32/boards/nodemcu/nodemcu_32s_pin.png)
+
+nodemcu_32s_sch
+![nodemcu_32s_sch.png](http://wiki.ai-thinker.com/_media/esp32/boards/nodemcu/nodemcu_32s_sch.png)
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot?ref=badge_large)
