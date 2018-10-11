@@ -3,8 +3,11 @@
 
 NodeMcu-32s & ROS.
 
-## Development board
-http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
+## Feature
+
+* Reconnect wifi automatically when the network is disconnected
+* Light flashing when system running
+* Get timestamp from NtpServer
 
 ## Usage
 
@@ -31,6 +34,10 @@ http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 * EEPROM at version 1.0
 * Adafruit_Unified_Sensor at version 1.0.2 
 * WiFiClientSecure at version 1.0
+
+## Development board
+
+http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 
 ## Resouce
 
