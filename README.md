@@ -19,11 +19,17 @@ NodeMcu-32s & ROS.
 * Open "Esp32bot.ino" with Arduino.
 
 ## Ros
+
+http://wiki.ros.org/rosserial_arduino
+
 ### Install Ros dependence
+
 `sudo apt-get install ros-indigo-rosserial-arduino && sudo apt-get install ros-indigo-rosserial &&`
 `cd <sketchbook>/libraries`
 `rosrun rosserial_arduino make_libraries.py .`
+
 ### Command
+
 `roscore && roslaunch rosserial_server socket.launch`
 
 ## Dependent libraries
