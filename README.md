@@ -5,9 +5,9 @@ NodeMcu-32s & ROS.
 
 ## Feature
 
-* Reconnect wifi automatically when the network is disconnected
-* Light flashing when system running
-* Get timestamp from NtpServer
+* Reconnect WIFI automatically when the network is disconnected
+* Board LED flashing when system is running
+* Synchronize time from NtpServer
 
 ## Usage
 
