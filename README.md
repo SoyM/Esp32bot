@@ -3,8 +3,11 @@
 
 NodeMcu-32s & ROS.
 
-## Development board
-http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
+## Feature
+
+* Reconnect WIFI automatically when the network is disconnected
+* Board LED flashing when system is running
+* Synchronize time from NtpServer
 
 ## Usage
 
@@ -16,11 +19,17 @@ http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 * Open "Esp32bot.ino" with Arduino.
 
 ## Ros
+
+http://wiki.ros.org/rosserial_arduino
+
 ### Install Ros dependence
+
 `sudo apt-get install ros-indigo-rosserial-arduino && sudo apt-get install ros-indigo-rosserial &&`
 `cd <sketchbook>/libraries`
 `rosrun rosserial_arduino make_libraries.py .`
+
 ### Command
+
 `roscore && roslaunch rosserial_server socket.launch`
 
 ## Dependent libraries
@@ -32,8 +41,17 @@ http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 * Adafruit_Unified_Sensor at version 1.0.2 
 * WiFiClientSecure at version 1.0
 
+## Development board
+
+http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
+
 ## Resouce
+
+nodemcu_32s_pin
 ![nodemcu_32s_pin.png](http://wiki.ai-thinker.com/_media/esp32/boards/nodemcu/nodemcu_32s_pin.png)
+
+nodemcu_32s_sch
+![nodemcu_32s_sch.png](http://wiki.ai-thinker.com/_media/esp32/boards/nodemcu/nodemcu_32s_sch.png)
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot?ref=badge_large)
