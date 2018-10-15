@@ -8,8 +8,7 @@ NodeMcu-32s & ROS.
 * Reconnect WIFI automatically when the network is disconnected
 * Board LED flashing when system is running
 * Synchronize time from NtpServer
-* Support for multi WiFi and automatic switching
-
+* Support multi WiFi and switch to available WIFI automatically
 
 ## Usage
 
