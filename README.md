@@ -1,4 +1,5 @@
 # Esp32bot
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot?ref=badge_shield)
 
 NodeMcu-32s & ROS.
@@ -33,12 +34,13 @@ http://wiki.ros.org/rosserial_arduino
 `roscore && roslaunch rosserial_server socket.launch`
 
 ## Dependent libraries
-* ArduinoJson at version 5.13.1 
+
+* ArduinoJson at version 5.13.1
 * DHT_sensor_library at version 1.3.0
-* pubsubclient-2.6 at version 2.6 
-* HTTPClient at version 1.1 
+* pubsubclient-2.6 at version 2.6
+* HTTPClient at version 1.1
 * EEPROM at version 1.0
-* Adafruit_Unified_Sensor at version 1.0.2 
+* Adafruit_Unified_Sensor at version 1.0.2
 * WiFiClientSecure at version 1.0
 
 ## Development board
@@ -48,10 +50,11 @@ http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 ## Resouce
 
 nodemcu_32s_pin
-![nodemcu_32s_pin.png](http://wiki.ai-thinker.com/_media/esp32/boards/nodemcu/nodemcu_32s_pin.png)
+![nodemcu_32s_pin.png](doc/nodemcu_32s_pin.png)
 
 nodemcu_32s_sch
-![nodemcu_32s_sch.png](http://wiki.ai-thinker.com/_media/esp32/boards/nodemcu/nodemcu_32s_sch.png)
+![nodemcu_32s_sch.png](doc/nodemcu_32s_sch.png)
 
 ## License
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot?ref=badge_large)
