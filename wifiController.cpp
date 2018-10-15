@@ -13,7 +13,7 @@ int WifiController::checkWifiConnect(){
 
 void WifiController::wifiConnect() {
   wifiMulti.addAP("ASUS", "00000000");
-  wifiMulti.addAP("huang2", "hxz04010.");
+  wifiMulti.addAP("TP-LINK_5G_4A49", "Lanyinkejiccs.");
   wifiMulti.addAP("TP-LINK_4A49", "Lanyinkejiccs");
   Serial.println("WIFI Connecting");
   for (int loops = 0; loops < 5; loops++) {

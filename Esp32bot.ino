@@ -27,7 +27,7 @@ char JSONmessageBuffer[300];
 TaskHandle_t baseTaskHandle,realTaskHandle;
 
 ros::NodeHandle  nh;
-IPAddress rosServer(192, 168, 1, 106);
+IPAddress rosServer(192, 168, 1, 200);
 uint16_t rosServerPort = 11411;
 std_msgs::UInt8 str_msg;
 ros::Publisher light_status("light_status", &str_msg);
@@ -162,6 +162,6 @@ void baseTask(void* parameter) {
     }else{
       ledFlash();
     }
-    delay(20);
+    delay(12);
   }
 }
