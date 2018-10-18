@@ -10,6 +10,7 @@ NodeMcu-32s & ROS.
 * Board LED flashing when system is running
 * Synchronize time from NtpServer
 * Support multi WiFi and switch to available WIFI automatically
+* Websocket support 
 
 ## Usage
 
