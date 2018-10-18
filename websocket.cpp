@@ -1,8 +1,6 @@
 #define DEBUGGING
 
-//#include "global.h"/
 #include "websocket.h"
-
 #include "sha1.h"
 #include "Base64.h"
 
@@ -13,20 +11,18 @@ bool WebSocketClient::handshake(WiFiClient &client) {
     
     socket_client->connect("192.168.1.106",9002);
   
-    // If there is a connected client->
     if (socket_client->connected()) {
-        // Check request and look for websocket handshake
-            Serial.println(F("Client connected"));
+            Serial.println(("socket_client connected"));
+            
         if (analyzeRequest()) {
                 Serial.println(F("Websocket established"));
 
                 return true;
 
         } else {
-            // Might just need to break until out of socket_client loop.
             Serial.println(F("Invalid handshake"));
-            
-//            disconnectStream();
+
+            disconnectStream();
             return false;
         }
     } else {

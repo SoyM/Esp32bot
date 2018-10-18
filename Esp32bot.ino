@@ -70,7 +70,6 @@ void setup() {
   // Start to be polite
   nh.advertise(light_status);
 
-  
   MqCon.mqInit();
 //  NtpCon.ntpInit();
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
@@ -162,6 +161,7 @@ void realTask(void* parameter) {
       ws_sendData = "{\"battery_adc\":";
       ws_sendData.concat(itostr(&battery_adc_c,battery_adc));
       ws_sendData.concat("}");
+
       ws_client.sendData(ws_sendData);
    
       ws_client.getData(ws_readData);
@@ -169,7 +169,6 @@ void realTask(void* parameter) {
         Serial.print("Received data: ");
         Serial.println(ws_readData);
       }
-
     
       sum_adc = 0;
       battery_count = 0;
@@ -219,6 +218,14 @@ void baseTask(void* parameter) {
         WifiController::wifiConnect();  
     }else{
       ledFlash();
+    }
+
+    if (!(&wifi_client)->connected()){
+      if (ws_client.handshake(wifi_client)) {
+        Serial.println("socket connect successful");
+      } else {
+        Serial.println("socket connect failed.");
+      }
     }
     delay(12);
   }
