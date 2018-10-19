@@ -27,17 +27,15 @@ http://wiki.ros.org/rosserial_arduino
 
 ### Install Ros dependence
 
+    $ sudo apt-get install ros-<your-ROS-distro>-rosserial-arduino && sudo apt-get install ros-<your-ROS-distro>-rosserial 
 
-  $ sudo apt-get install ros-<your-ROS-distro>-rosserial-arduino && sudo apt-get install ros-<your-ROS-distro>-rosserial 
+    $ cd <sketchbook>/libraries
 
-  $ cd <sketchbook>/libraries
-
-  $ rosrun rosserial_arduino make_libraries.py .
-
+    $ rosrun rosserial_arduino make_libraries.py .
 
 ### Command
 
-  $ roscore && roslaunch rosserial_server socket.launch
+    $ roscore && roslaunch rosserial_server socket.launch
 
 ## Dependent libraries
 
