@@ -60,5 +60,6 @@ nodemcu_32s_sch
 ![nodemcu_32s_sch.png](doc/nodemcu_32s_sch.png)
 
 ## License
+GPL V3
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot?ref=badge_large)
