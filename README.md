@@ -10,6 +10,7 @@ NodeMcu-32s & ROS.
 * Board LED flashing when system is running
 * Synchronize time from NtpServer
 * Support multi WiFi and switch to available WIFI automatically
+* Websocket support 
 
 ## Usage
 
@@ -26,13 +27,15 @@ http://wiki.ros.org/rosserial_arduino
 
 ### Install Ros dependence
 
-`sudo apt-get install ros-indigo-rosserial-arduino && sudo apt-get install ros-indigo-rosserial &&`
-`cd <sketchbook>/libraries`
-`rosrun rosserial_arduino make_libraries.py .`
+    $ sudo apt-get install ros-<your-ROS-distro>-rosserial-arduino && sudo apt-get install ros-<your-ROS-distro>-rosserial 
+
+    $ cd <sketchbook>/libraries
+
+    $ rosrun rosserial_arduino make_libraries.py .
 
 ### Command
 
-`roscore && roslaunch rosserial_server socket.launch`
+    $ roscore && roslaunch rosserial_server socket.launch
 
 ## Dependent libraries
 
@@ -57,5 +60,6 @@ nodemcu_32s_sch
 ![nodemcu_32s_sch.png](doc/nodemcu_32s_sch.png)
 
 ## License
+GPL V3
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FSoyM%2FEsp32bot?ref=badge_large)
