@@ -53,10 +53,18 @@ http://wiki.ai-thinker.com/esp32/boards/nodemcu_32s
 
 ## Resouce
 
-nodemcu_32s_pin
+esp32_datasheet:
+
+https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_cn.pdf
+
+esp32_technical_reference_manual:
+
+https://www.espressif.com/sites/default/files/documentation/esp32_technical_reference_manual_cn.pdf
+
+nodemcu_32s_pin:
 ![nodemcu_32s_pin.png](doc/nodemcu_32s_pin.png)
 
-nodemcu_32s_sch
+nodemcu_32s_sch:
 ![nodemcu_32s_sch.png](doc/nodemcu_32s_sch.png)
 
 ## License
