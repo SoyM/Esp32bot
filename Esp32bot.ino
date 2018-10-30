@@ -9,6 +9,9 @@
 #include "websocket.h"
 
 #define ESP32
+#define EN_LightStatus
+#define EN_BatteryAdc
+#define EN_BuzzerAlarm
 
 const char* ntpServer = "cn.pool.ntp.org";
 const long  gmtOffset_sec = 28800;
@@ -28,8 +31,11 @@ StaticJsonBuffer<300> JSONbuffer;
 JsonObject& publishData = JSONbuffer.createObject();
 char JSONmessageBuffer[300];
 
+
 TaskHandle_t baseTaskHandle,realTaskHandle;
 
+
+#if defined(EN_LightStatus)
 ros::NodeHandle  nh;
 IPAddress rosServer(192, 168, 1, 106);
 uint16_t rosServerPort = 11411;
@@ -37,18 +43,26 @@ std_msgs::UInt8 str_msg;
 ros::Publisher light_status("light_status", &str_msg);
 char hello[13] = "hello world!";
 uint32_t message_count = 0;
+#endif
+
 
 MqController MqCon;
 //NtpController NtpCon;
 
+#if defined(EN_BatteryAdc) || defined(EN_BuzzerAlarm)
 WebSocketClient ws_client;
 String ws_readData;
 String ws_sendData;
+#endif
 
+
+#ifdef EN_LightStatus
 void messageCb( const std_msgs::Empty& toggle_msg){
   digitalWrite(13, HIGH-digitalRead(13));   // blink the led
 }
 ros::Subscriber<std_msgs::Empty> sub("toggle_led", &messageCb );
+#endif
+
 
 void setup() {
   baseInit();
@@ -58,22 +72,21 @@ void setup() {
   boardLedInit();
   pinMode(buttonPin, INPUT);
 
+#ifdef EN_LightStatus
   nh.getHardware()->setConnection(rosServer, rosServerPort);
-
   nh.initNode();
   nh.subscribe(sub);
-
-  // Another way to get IP
-  Serial.print("IP = ");
+  Serial.print("ROS IP = ");
   Serial.println(nh.getHardware()->getLocalIP());
-
   // Start to be polite
   nh.advertise(light_status);
+#endif
 
   MqCon.mqInit();
 //  NtpCon.ntpInit();
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
+#if defined(EN_BatteryAdc) || defined(EN_BuzzerAlarm)
 //websocket
   ws_client.path = "/";
   ws_client.host = "192.168.1.106";
@@ -82,14 +95,23 @@ void setup() {
   } else {
     Serial.println("Handshake failed.");
   }
+#endif
+
+  ledcSetup(1, 5000, 13);
+  ledcAttachPin(12, 1);
+  // 3.14
+  //ledcWrite(1, 7750);
+  ledcWrite(1, 7000);
   
   xTaskCreate(realTask, "realTask", 5000, NULL, 1, &realTaskHandle);
   xTaskCreate(baseTask, "baseTask", 5000, NULL, 1, &baseTaskHandle);
 //  vTaskStartScheduler(); 
 }
 
+
 int buttonState = 0;
 int rssi = 0;
+
 
 void loop() {
     buttonState = digitalRead(buttonPin);
@@ -132,8 +154,7 @@ void loop() {
 }
 
 
-char* itostr(char *str, int i)
-{
+char* itostr(char *str, int i){
   sprintf(str, "%d", i);
   return str;
 }
@@ -143,14 +164,16 @@ void realTask(void* parameter) {
   bool check_sum = true;
   uint32_t sum_adc = 0;
   char ros_pub_result = 0;
+  
   uint32_t battery_count = 0;
-  uint32_t adc_sample_num = 50;
+  uint32_t adc_sample_num = 20;
   char battery_adc_c;
   int battery_adc = 0;
   
   while (1) {
 //    MqttCon.mqttLoop();
 
+#ifdef EN_BatteryAdc
     sum_adc = sum_adc + MqCon.readMQ();
     battery_count++;
     if(battery_count==adc_sample_num){
@@ -173,18 +196,23 @@ void realTask(void* parameter) {
       sum_adc = 0;
       battery_count = 0;
     }
+#endif
 
-    
+
+#ifdef EN_LightStatus
     if (nh.connected())
     {
 //      if(MqCon.readMQ()>4050){
-        if(digitalRead(buttonPin)==LOW){
+//      Serial.printf("digitalRead(buttonPin): %d\n" , digitalRead(buttonPin));
+      if(digitalRead(buttonPin)==LOW){
         
         if(check_sum==true){
           str_msg.data = 0xFF;
         }else{
           str_msg.data = 0x0F;
         }
+
+        
       }else{
         
         if(check_sum==true){
@@ -204,7 +232,8 @@ void realTask(void* parameter) {
 //      Serial.printf("rosmsg publish length: %d\n",result);
     }
     nh.spinOnce();
-    
+#endif
+
     delay(49);
 //  xTaskNotifyGive( mainTaskHandle ); 
 //    vTaskDelete(NULL);   

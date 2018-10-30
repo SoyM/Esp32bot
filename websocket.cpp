@@ -12,15 +12,15 @@ bool WebSocketClient::handshake(WiFiClient &client) {
     socket_client->connect("192.168.1.106",9002);
   
     if (socket_client->connected()) {
-            Serial.println(("socket_client connected"));
+            Serial.println("socket_client connected");
             
         if (analyzeRequest()) {
-                Serial.println(F("Websocket established"));
+                Serial.println("Websocket established");
 
                 return true;
 
         } else {
-            Serial.println(F("Invalid handshake"));
+            Serial.println("Invalid handshake");
 
             disconnectStream();
             return false;
@@ -66,7 +66,7 @@ Accept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en
     Serial.println(F("Analyzing response headers"));
 
     while (socket_client->connected() && !socket_client->available()) {
-        delay(100);
+        delay(10);
         Serial.println("Waiting...");
     }
 
@@ -86,9 +86,9 @@ Accept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en
             temp = "";
         }
 
-        if (!socket_client->available()) {
-          delay(20);
-        }
+//        if (!socket_client->available()) {
+//          delay(10);
+//        }
     }
 
     key += "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -124,8 +124,7 @@ bool WebSocketClient::handleStream(String& data, uint8_t *opcode) {
     unsigned int i;
     bool hasMask = false;
 
-    if (!socket_client->connected() || !socket_client->available())
-    {
+    if (!socket_client->connected() || !socket_client->available()){
         return false;
     }
 
