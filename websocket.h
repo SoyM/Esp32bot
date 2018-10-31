@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include <Stream.h>
 #include <WiFiMulti.h>
+#include "sha1.h"
+#include "Base64.h"
 
 // CRLF characters to terminate lines/handshakes in headers.
 #define CRLF "\r\n"

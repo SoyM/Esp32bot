@@ -1,3 +1,26 @@
+/*
+ * usage:
+ * 
+ * #include "mqttController.h"
+ * 
+ * PubSubClient mqttClient(wifi_client);
+ * MqttController MqttCon(&mqttClient);
+ * StaticJsonBuffer<300> JSONbuffer;
+ * JsonObject& publishData = JSONbuffer.createObject();
+ * char JSONmessageBuffer[300];
+ * 
+ * MqttCon.mqttConnect();
+ * 
+ * MqttCon.mqttLoop();
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
+
 #ifndef _MQTTCONTROLLER_H
 #define _MQTTCONTROLLER_H
 

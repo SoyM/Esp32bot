@@ -3,19 +3,17 @@
 #include <std_msgs/Empty.h>
 #include <std_msgs/Int16.h>
 #include <std_msgs/UInt8.h>
-//#include <HTTPClient.h>
 #include <ArduinoJson.h>
-#include "time.h"
 #include "websocket.h"
+#include "wifiController.h"
+#include "mqController.h"
+#include "eepromController.h"
+#include "ledController.h"
 
 #define ESP32
-#define EN_LightStatus
 #define EN_BatteryAdc
 #define EN_BuzzerAlarm
 
-const char* ntpServer = "cn.pool.ntp.org";
-const long  gmtOffset_sec = 28800;
-const int   daylightOffset_sec = 0;
 const int buttonPin = 0;
 char serverAddress[] = "192.168.1.106"; 
 int ws_port = 9002;
@@ -24,41 +22,34 @@ int ws_port = 9002;
 WiFiMulti wifiMulti;
 WifiController WifiCon(&wifiMulti);
 WiFiClient wifi_client;
-//PubSubClient mqttClient(espClient);/
-//MqttController MqttCon(&mqttClient);/
-
-StaticJsonBuffer<300> JSONbuffer;
-JsonObject& publishData = JSONbuffer.createObject();
-char JSONmessageBuffer[300];
-
 
 TaskHandle_t baseTaskHandle,realTaskHandle;
 
+#if defined(_ROS_H_)
+  ros::NodeHandle  nh;
+  IPAddress rosServer(192, 168, 1, 106);
+  uint16_t rosServerPort = 11411;
+  std_msgs::UInt8 str_msg;
+  ros::Publisher light_status("light_status", &str_msg);
+  char hello[13] = "hello world!";
+  uint32_t message_count = 0;
+#endif
 
-#if defined(EN_LightStatus)
-ros::NodeHandle  nh;
-IPAddress rosServer(192, 168, 1, 106);
-uint16_t rosServerPort = 11411;
-std_msgs::UInt8 str_msg;
-ros::Publisher light_status("light_status", &str_msg);
-char hello[13] = "hello world!";
-uint32_t message_count = 0;
+#if defined(EN_BatteryAdc)
+  MqController MqCon;
 #endif
 
 
-MqController MqCon;
-//NtpController NtpCon;
-
-#if defined(EN_BatteryAdc) || defined(EN_BuzzerAlarm)
-WebSocketClient ws_client;
-String ws_readData;
-String ws_sendData;
+#ifdef _WEBSOCKET_H
+  WebSocketClient ws_client;
+  String ws_readData;
+  String ws_sendData;
 #endif
 
 
-#ifdef EN_LightStatus
+#ifdef _ROS_H_
 void messageCb( const std_msgs::Empty& toggle_msg){
-  digitalWrite(13, HIGH-digitalRead(13));   // blink the led
+  digitalWrite(13, HIGH-digitalRead(13));  
 }
 ros::Subscriber<std_msgs::Empty> sub("toggle_led", &messageCb );
 #endif
@@ -68,11 +59,10 @@ void setup() {
   baseInit();
   eepromInit();
   WifiCon.wifiConnect();
-//  MqttCon.mqttConnect();/
   boardLedInit();
+  
+#ifdef _ROS_H_
   pinMode(buttonPin, INPUT);
-
-#ifdef EN_LightStatus
   nh.getHardware()->setConnection(rosServer, rosServerPort);
   nh.initNode();
   nh.subscribe(sub);
@@ -82,14 +72,13 @@ void setup() {
   nh.advertise(light_status);
 #endif
 
+#if defined(EN_BatteryAdc)
   MqCon.mqInit();
-//  NtpCon.ntpInit();
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+#endif
 
-#if defined(EN_BatteryAdc) || defined(EN_BuzzerAlarm)
-//websocket
+#ifdef _WEBSOCKET_H
   ws_client.path = "/";
-  ws_client.host = "192.168.1.106";
+  ws_client.host = "192.168.1.106";                                             
   if (ws_client.handshake(wifi_client)) {
     Serial.println("Handshake successful");
   } else {
@@ -97,12 +86,7 @@ void setup() {
   }
 #endif
 
-  ledcSetup(1, 5000, 13);
-  ledcAttachPin(12, 1);
-  // 3.14
-  //ledcWrite(1, 7750);
-  ledcWrite(1, 7000);
-  
+
   xTaskCreate(realTask, "realTask", 5000, NULL, 1, &realTaskHandle);
   xTaskCreate(baseTask, "baseTask", 5000, NULL, 1, &baseTaskHandle);
 //  vTaskStartScheduler(); 
@@ -120,37 +104,24 @@ void loop() {
     }else{
       Serial.printf("low");
     }
+
+    if (!(&wifi_client)->connected()){
+      #ifdef _WEBSOCKET_H
+      if (ws_client.handshake(wifi_client)) {
+        Serial.println("socket connect successful");
+      } else {
+        Serial.println("socket connect failed.");
+      }
+      #endif
+    }
     rssi = WiFi.RSSI();
     Serial.printf("RSSI: %ddBm | ExecCore: %d | message_count: %d\n", rssi, xPortGetCoreID(), message_count);
     message_count = 0;
+    
     //ulTaskNotifyTake( pdTRUE, portMAX_DELAY); 
-/*
-    HTTPClient http;
-    http.begin("http://192.168.1.106/path.html"); //HTTP
-    int httpCode = http.GET();
-    if(httpCode > 0) {
-        Serial.printf("HTTP GET code: %d\n", httpCode);
-        if(httpCode == HTTP_CODE_OK) {
-//                String payload = http.getString();
-//               Serial.println(payload);
-        }
-    } else {
-        Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-    }
-    http.end();
-*/
-//    Serial.printf("mq:%d\n",MqCon.readMQ());
-//    NtpCon.ntpGet();
-
-//    struct tm timeinfo;
-//    if(!getLocalTime(&timeinfo)){
-//      Serial.println("Failed to obtain time");
-//      return;
-//    }
-//    Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 
     Serial.println("--------------------------");
-    delay(1000);
+    delay(500);
 }
 
 
@@ -161,19 +132,23 @@ char* itostr(char *str, int i){
 
 
 void realTask(void* parameter) {
+#ifdef _ROS_H_
   bool check_sum = true;
   uint32_t sum_adc = 0;
   char ros_pub_result = 0;
-  
+#endif
+
+#if defined(EN_BatteryAdc)
   uint32_t battery_count = 0;
   uint32_t adc_sample_num = 20;
   char battery_adc_c;
   int battery_adc = 0;
+#endif
   
   while (1) {
-//    MqttCon.mqttLoop();
 
-#ifdef EN_BatteryAdc
+#ifdef _WEBSOCKET_H
+  #ifdef EN_BatteryAdc
     sum_adc = sum_adc + MqCon.readMQ();
     battery_count++;
     if(battery_count==adc_sample_num){
@@ -185,8 +160,8 @@ void realTask(void* parameter) {
       ws_sendData.concat(itostr(&battery_adc_c,battery_adc));
       ws_sendData.concat("}");
 
+
       ws_client.sendData(ws_sendData);
-   
       ws_client.getData(ws_readData);
       if (ws_readData.length() > 0) {
         Serial.print("Received data: ");
@@ -196,10 +171,11 @@ void realTask(void* parameter) {
       sum_adc = 0;
       battery_count = 0;
     }
+  #endif
 #endif
 
 
-#ifdef EN_LightStatus
+#ifdef _ROS_H_
     if (nh.connected())
     {
 //      if(MqCon.readMQ()>4050){
@@ -211,10 +187,7 @@ void realTask(void* parameter) {
         }else{
           str_msg.data = 0x0F;
         }
-
-        
       }else{
-        
         if(check_sum==true){
           str_msg.data = 0xF0;
         }else{
@@ -234,7 +207,7 @@ void realTask(void* parameter) {
     nh.spinOnce();
 #endif
 
-    delay(49);
+    delay(48);
 //  xTaskNotifyGive( mainTaskHandle ); 
 //    vTaskDelete(NULL);   
   }
@@ -249,13 +222,6 @@ void baseTask(void* parameter) {
       ledFlash();
     }
 
-    if (!(&wifi_client)->connected()){
-      if (ws_client.handshake(wifi_client)) {
-        Serial.println("socket connect successful");
-      } else {
-        Serial.println("socket connect failed.");
-      }
-    }
-    delay(12);
+    delay(10);
   }
 }

@@ -1,8 +1,6 @@
 #define DEBUGGING
 
 #include "websocket.h"
-#include "sha1.h"
-#include "Base64.h"
 
 
 bool WebSocketClient::handshake(WiFiClient &client) {
