@@ -60,6 +60,7 @@ public:
 
     char *path;
     char *host;
+    uint16_t port;
     char *protocol;
 
 private:

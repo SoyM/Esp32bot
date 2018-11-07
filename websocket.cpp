@@ -7,7 +7,7 @@ bool WebSocketClient::handshake(WiFiClient &client) {
 
     socket_client = &client;
     
-    socket_client->connect("192.168.1.106",9002);
+    socket_client->connect(host,port);
   
     if (socket_client->connected()) {
             Serial.println("socket_client connected");
@@ -54,7 +54,7 @@ bool WebSocketClient::analyzeRequest() {
     Serial.println("Sending websocket upgrade headers");
 
 
-    String send_buff = "GET / HTTP/1.1\r\nHost: 192.168.1.106:9002\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nUser-Agent: arduino_soym\r\nUpgrade: websocket\r\nOrigin: http://192.168.1.106:8000\r\nSec-WebSocket-Version: 13\r\n\
+    String send_buff = "GET / HTTP/1.1\r\nHost: 192.168.1.247:9002\r\nConnection: Upgrade\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nUser-Agent: arduino_soym\r\nUpgrade: websocket\r\nOrigin: http://192.168.1.247:8000\r\nSec-WebSocket-Version: 13\r\n\
 Accept-Encoding: gzip, deflate\r\nAccept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7\r\nSec-WebSocket-Key: ";
     send_buff.concat(key);
     send_buff.concat("\r\n\Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits\r\n\r\n");

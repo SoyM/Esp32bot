@@ -11,13 +11,12 @@
 #include "ledController.h"
 
 #define ESP32
-#define EN_BatteryAdc
-#define EN_BuzzerAlarm
+
+
+#define WS_HOST "192.168.1.247"
+#define WS_PORT 9002
 
 const int buttonPin = 0;
-char serverAddress[] = "192.168.1.106"; 
-int ws_port = 9002;
-
 
 WiFiMulti wifiMulti;
 WifiController WifiCon(&wifiMulti);
@@ -27,7 +26,7 @@ TaskHandle_t baseTaskHandle,realTaskHandle;
 
 #if defined(_ROS_H_)
   ros::NodeHandle  nh;
-  IPAddress rosServer(192, 168, 1, 106);
+  IPAddress rosServer(192, 168, 1, 200);
   uint16_t rosServerPort = 11411;
   std_msgs::UInt8 str_msg;
   ros::Publisher light_status("light_status", &str_msg);
@@ -35,9 +34,7 @@ TaskHandle_t baseTaskHandle,realTaskHandle;
   uint32_t message_count = 0;
 #endif
 
-#if defined(EN_BatteryAdc)
-  MqController MqCon;
-#endif
+MqController MqCon;
 
 
 #ifdef _WEBSOCKET_H
@@ -72,13 +69,14 @@ void setup() {
   nh.advertise(light_status);
 #endif
 
-#if defined(EN_BatteryAdc)
   MqCon.mqInit();
-#endif
 
 #ifdef _WEBSOCKET_H
+  pinMode(13, OUTPUT);
+
   ws_client.path = "/";
-  ws_client.host = "192.168.1.106";                                             
+  ws_client.host = WS_HOST;
+  ws_client.port = WS_PORT;                                             
   if (ws_client.handshake(wifi_client)) {
     Serial.println("Handshake successful");
   } else {
@@ -106,14 +104,9 @@ void loop() {
     }
 
     if (!(&wifi_client)->connected()){
-      #ifdef _WEBSOCKET_H
-      if (ws_client.handshake(wifi_client)) {
-        Serial.println("socket connect successful");
-      } else {
-        Serial.println("socket connect failed.");
-      }
-      #endif
+        ws_client.handshake(wifi_client);
     }
+    
     rssi = WiFi.RSSI();
     Serial.printf("RSSI: %ddBm | ExecCore: %d | message_count: %d\n", rssi, xPortGetCoreID(), message_count);
     message_count = 0;
@@ -121,7 +114,7 @@ void loop() {
     //ulTaskNotifyTake( pdTRUE, portMAX_DELAY); 
 
     Serial.println("--------------------------");
-    delay(500);
+    delay(1000);
 }
 
 
@@ -138,7 +131,7 @@ void realTask(void* parameter) {
   char ros_pub_result = 0;
 #endif
 
-#if defined(EN_BatteryAdc)
+#ifdef _WEBSOCKET_H
   uint32_t battery_count = 0;
   uint32_t adc_sample_num = 20;
   char battery_adc_c;
@@ -147,32 +140,44 @@ void realTask(void* parameter) {
   
   while (1) {
 
-#ifdef _WEBSOCKET_H
-  #ifdef EN_BatteryAdc
-    sum_adc = sum_adc + MqCon.readMQ();
-    battery_count++;
-    if(battery_count==adc_sample_num){
-      battery_adc = sum_adc/adc_sample_num;
-
-      Serial.printf("mq  |  %d\n",battery_adc);
-
-      ws_sendData = "{\"battery_adc\":";
-      ws_sendData.concat(itostr(&battery_adc_c,battery_adc));
-      ws_sendData.concat("}");
-
-
-      ws_client.sendData(ws_sendData);
-      ws_client.getData(ws_readData);
-      if (ws_readData.length() > 0) {
-        Serial.print("Received data: ");
-        Serial.println(ws_readData);
+//#ifdef _WEBSOCKET_H
+    if ((&wifi_client)->connected()){
+      sum_adc = sum_adc + MqCon.readMQ();
+      battery_count++;
+      if(battery_count==adc_sample_num){
+        battery_adc = sum_adc/adc_sample_num;
+  
+        Serial.printf("mq  |  %d\n",battery_adc);
+  
+        ws_sendData = "{\"battery_adc\":";
+        ws_sendData.concat(itostr(&battery_adc_c,battery_adc));
+        ws_sendData.concat("}");
+  
+  
+        ws_client.sendData(ws_sendData);
+        ws_client.getData(ws_readData);
+        if (ws_readData.length() > 0) {
+          Serial.print("Received data: ");
+          Serial.println(ws_readData);
+          if(ws_readData == "error_signal"){
+            digitalWrite(13, 1);
+          }else{
+            digitalWrite(13, 0);
+          }
+          ws_readData = "";
+        }else{
+            digitalWrite(13, 0);
+        }
+  
+  //      String error_signal = "error_signal:1";
+  //      String temp = error_signal.split(":");
+  //      Serial.println(temp);
+      
+        sum_adc = 0;
+        battery_count = 0;
       }
-    
-      sum_adc = 0;
-      battery_count = 0;
     }
-  #endif
-#endif
+//#endif
 
 
 #ifdef _ROS_H_
@@ -197,11 +202,12 @@ void realTask(void* parameter) {
 
       check_sum = check_sum==true?false:true;
       
-      ros_pub_result = light_status.publish( &str_msg );
-      if(ros_pub_result>0){
+//      ros_pub_result = light_status.publish( &str_msg );
+
+//      if(ros_pub_result>0){
         //Serial.print(xPortGetCoreID());
-        message_count++;
-      }
+//        message_count++;
+//      }
 //      Serial.printf("rosmsg publish length: %d\n",result);
     }
     nh.spinOnce();
