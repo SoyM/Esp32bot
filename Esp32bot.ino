@@ -1,8 +1,8 @@
 #include "asoym.h"
-#include <ros.h>
-#include <std_msgs/Empty.h>
-#include <std_msgs/Int16.h>
-#include <std_msgs/UInt8.h>
+//#include <ros.h>
+//#include <std_msgs/Empty.h>
+//#include <std_msgs/Int16.h>
+//#include <std_msgs/Bool.h>
 #include <ArduinoJson.h>
 #include "websocket.h"
 #include "wifiController.h"
@@ -13,7 +13,7 @@
 #define ESP32
 
 
-#define WS_HOST "192.168.1.247"
+#define WS_HOST "192.168.1.201"
 #define WS_PORT 9002
 
 const int buttonPin = 0;
@@ -24,18 +24,8 @@ WiFiClient wifi_client;
 
 TaskHandle_t baseTaskHandle,realTaskHandle;
 
-#if defined(_ROS_H_)
-  ros::NodeHandle  nh;
-  IPAddress rosServer(192, 168, 1, 200);
-  uint16_t rosServerPort = 11411;
-  std_msgs::UInt8 str_msg;
-  ros::Publisher light_status("light_status", &str_msg);
-  char hello[13] = "hello world!";
-  uint32_t message_count = 0;
-#endif
-
 MqController MqCon;
-
+uint32_t message_count = 0;
 
 #ifdef _WEBSOCKET_H
   WebSocketClient ws_client;
@@ -45,6 +35,13 @@ MqController MqCon;
 
 
 #ifdef _ROS_H_
+ros::NodeHandle  nh;
+IPAddress rosServer(192, 168, 1, 201);
+uint16_t rosServerPort = 11411;
+std_msgs::Bool bool_msg;
+ros::Publisher light_status("light_status", &bool_msg);
+char hello[13] = "hello world!";
+
 void messageCb( const std_msgs::Empty& toggle_msg){
   digitalWrite(13, HIGH-digitalRead(13));  
 }
@@ -96,16 +93,11 @@ int rssi = 0;
 
 
 void loop() {
-    buttonState = digitalRead(buttonPin);
-    if (buttonState == HIGH) {
-      Serial.printf("high");
-    }else{
-      Serial.printf("low");
-    }
-
+#ifdef _WEBSOCKET_H
     if (!(&wifi_client)->connected()){
         ws_client.handshake(wifi_client);
     }
+#endif
     
     rssi = WiFi.RSSI();
     Serial.printf("RSSI: %ddBm | ExecCore: %d | message_count: %d\n", rssi, xPortGetCoreID(), message_count);
@@ -125,11 +117,9 @@ char* itostr(char *str, int i){
 
 
 void realTask(void* parameter) {
-#ifdef _ROS_H_
-  bool check_sum = true;
+  
   uint32_t sum_adc = 0;
   char ros_pub_result = 0;
-#endif
 
 #ifdef _WEBSOCKET_H
   uint32_t battery_count = 0;
@@ -140,7 +130,7 @@ void realTask(void* parameter) {
   
   while (1) {
 
-//#ifdef _WEBSOCKET_H
+#ifdef _WEBSOCKET_H
     if ((&wifi_client)->connected()){
       sum_adc = sum_adc + MqCon.readMQ();
       battery_count++;
@@ -177,43 +167,46 @@ void realTask(void* parameter) {
         battery_count = 0;
       }
     }
-//#endif
+#endif
 
+//=======================================
+// aolai light flash
+//=======================================
+    buttonState = digitalRead(buttonPin);
+    if (buttonState == HIGH) {
+      Serial.printf("high");
+    }else{
+      Serial.printf("low");
+    }
+    message_count++;
 
 #ifdef _ROS_H_
     if (nh.connected())
     {
+      
 //      if(MqCon.readMQ()>4050){
 //      Serial.printf("digitalRead(buttonPin): %d\n" , digitalRead(buttonPin));
       if(digitalRead(buttonPin)==LOW){
         
-        if(check_sum==true){
-          str_msg.data = 0xFF;
-        }else{
-          str_msg.data = 0x0F;
-        }
+        bool_msg.data = true;
+        
       }else{
-        if(check_sum==true){
-          str_msg.data = 0xF0;
-        }else{
-          str_msg.data = 0x00;
-        }
+        bool_msg.data = false;
       }
 
-      check_sum = check_sum==true?false:true;
       
-//      ros_pub_result = light_status.publish( &str_msg );
+      ros_pub_result = light_status.publish( &bool_msg );
 
-//      if(ros_pub_result>0){
+      if(ros_pub_result>0){
         //Serial.print(xPortGetCoreID());
-//        message_count++;
-//      }
+        message_count++;
+      }
 //      Serial.printf("rosmsg publish length: %d\n",result);
     }
     nh.spinOnce();
 #endif
 
-    delay(48);
+    delay(49);
 //  xTaskNotifyGive( mainTaskHandle ); 
 //    vTaskDelete(NULL);   
   }
@@ -228,6 +221,6 @@ void baseTask(void* parameter) {
       ledFlash();
     }
 
-    delay(10);
+    delay(333);
   }
 }

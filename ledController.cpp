@@ -1,7 +1,7 @@
 #include "ledController.h"
 
 int brightness = 0;    // how bright the LED is
-int fadeAmount = 51;    // how many points to fade the LED by
+int fadeAmount = 64;    // how many points to fade the LED by
 
 void boardLedInit(){
   ledcSetup(LEDC_CHANNEL_0, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
@@ -25,6 +25,5 @@ void ledFlash(){
     if (brightness <= 0 || brightness >= 255) {
       fadeAmount = -fadeAmount;
     }
-    delay(200);
+//    delay(200);
 }
-
